@@ -54,22 +54,35 @@
         minHeight: '280px',
       }"
     >
-      Content
+      {{ ebooks }}
+      {{ ebooks2 }}
     </a-layout-content>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import axios from 'axios'
+import { defineComponent, onMounted, ref, reactive, toRef } from "vue";
+import axios from "axios";
 
 export default defineComponent({
   name: "Home",
   setup() {
-    console.log("setup")
-    axios.get("http://localhost:8800/ebook/list?name=Spring").then((response) =>{
-      console.log(response)
-    }) 
+    console.log("setup");
+    const ebooks = ref();
+    const ebooks1 = reactive({ books: [] });
+    onMounted(() => {
+      axios
+        .get("http://localhost:8800/ebook/list?name=Spring")
+        .then((response) => {
+          const data = response.data;
+          ebooks.value = data.content;
+          ebooks1.books = data.content;
+        });
+    });
+    return {
+      ebooks,
+      ebooks2: toRef(ebooks1, "books"),
+    };
   },
 });
 </script>

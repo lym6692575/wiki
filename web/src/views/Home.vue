@@ -124,13 +124,11 @@ export default defineComponent({
     const ebooks = ref();
     const ebooks1 = reactive({ books: [] });
     onMounted(() => {
-      axios
-        .get("http://localhost:8800/ebook/list")
-        .then((response) => {
-          const data = response.data;
-          ebooks.value = data.content;
-          ebooks1.books = data.content;
-        });
+      axios.get("/ebook/list").then((response) => {
+        const data = response.data;
+        ebooks.value = data.content;
+        ebooks1.books = data.content;
+      });
     });
     const pagination = {
       onChange: (page: number) => {
@@ -155,11 +153,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  .ant-avatar {
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-    border-radius: 8%;
-    margin: 5px 0;
-  }
+.ant-avatar {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border-radius: 8%;
+  margin: 5px 0;
+}
 </style>

@@ -9,10 +9,110 @@
           minHeight: '280px',
         }"
       >
-        <div>
-          <h1>电子书管理</h1>
-        </div>
+        <a-table
+          :columns="columns"
+          :data-source="ebooks"
+          :loading="loading"
+          :pagination="pagination"
+          @change="handleTableChange"
+        >
+          <template #cover="{ text: cover }">
+            <img :src="cover" alt="avater" v-if="cover" />
+          </template>
+          <template>
+            <a-space size="small">
+              <a-button type="primary">编辑</a-button>
+              <a-button type="danger">删除</a-button>
+            </a-space>
+          </template>
+        </a-table>
       </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
+
+<script lang="ts">
+import { defineComponent, onMounted, ref } from "vue";
+import axios from "axios";
+export default defineComponent({
+  name: "AdminEbook",
+  setup() {
+    const ebooks = ref();
+    const pagination = ref({
+      current: 1,
+      pageSize: 2,
+      total: 0,
+    });
+    const loading = ref(false);
+    const columns = [
+      {
+        title: "封面",
+        dataindex: "cover",
+        slots: { customRender: "cover" },
+      },
+      {
+        title: "名称",
+        dataIndex: "name",
+      },
+      {
+        title: "分类一",
+        dataIndex: "crtegory1",
+        key: "crtegory1",
+      },
+      {
+        title: "分类二",
+        key: "crtegory2",
+        dataIndex: "crtegory2",
+      },
+      {
+        title: "文档书",
+        key: "docCount",
+      },
+      {
+        title: "阅读数",
+        key: "viewCount",
+      },
+      {
+        title: "点赞数",
+        key: "voteCount",
+      },
+      {
+        title: "Action",
+        key: "action",
+        slots: { customRender: "action" },
+      },
+    ];
+
+    /**
+     * 数据查询
+     **/
+    const handleQuery = (params: any) => {
+      loading.value = true;
+      axios.get("/ebook/list", params).then((response) => {
+        loading.value = false;
+        const data = response.data;
+        ebooks.value = data.content;
+        // 重置分页按钮
+        pagination.value.current = params.page;
+      });
+    };
+    const handleTableChange = (pagination: any) => {
+      console.log("看看自带的分页都有啥:"+pagination)
+      handleQuery({
+        page: pagination.current,
+        size: pagination.pageSize
+      })
+    }
+    onMounted(() => {
+      handleQuery({});
+    });
+    return {
+      ebooks,
+      pagination,
+      columns,
+      loading,
+      handleTableChange
+    }
+  },
+});
+</script>

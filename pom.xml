@@ -43,6 +43,9 @@
         </dependency>
 
         <!--aop-->
+<!--
+面向切口，没弄明白这个怎么回事
+-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -52,6 +55,18 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.70</version>
+        </dependency>
+
+        <!--pagehelper-->
+ <!--
+    分页帮助器
+    ！pagehelper分页从第一页开始
+    pagehelper.startPage只对第一个遇到的select起作用
+-->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.13</version>
         </dependency>
 
     </dependencies>

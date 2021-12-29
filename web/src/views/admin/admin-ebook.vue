@@ -11,18 +11,24 @@
       >
         <a-table
           :columns="columns"
+          :row-key="(record) => record.id"
           :data-source="ebooks"
           :loading="loading"
           :pagination="pagination"
           @change="handleTableChange"
         >
           <template #cover="{ text: cover }">
-            <img :src="cover" alt="avater" v-if="cover" />
+            <img
+              :src="cover.cover"
+              alt="avater"
+              style="width: 40px"
+              v-if="cover"
+            />
           </template>
-          <template>
+          <template v-slot:action="{ text, record }">
             <a-space size="small">
-              <a-button type="primary">编辑</a-button>
-              <a-button type="danger">删除</a-button>
+              <a-button type="primary"> 编辑 </a-button>
+              <a-button type="danger"> 删除 </a-button>
             </a-space>
           </template>
         </a-table>
@@ -34,6 +40,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
+
 export default defineComponent({
   name: "AdminEbook",
   setup() {
@@ -56,25 +63,25 @@ export default defineComponent({
       },
       {
         title: "分类一",
-        dataIndex: "crtegory1",
-        key: "crtegory1",
+        dataIndex: "category1Id",
+        key: "category1Id",
       },
       {
         title: "分类二",
-        key: "crtegory2",
-        dataIndex: "crtegory2",
+        key: "category2Id",
+        dataIndex: "category2Id",
       },
       {
         title: "文档书",
-        key: "docCount",
+        dataIndex: "docCount",
       },
       {
         title: "阅读数",
-        key: "viewCount",
+        dataIndex: "viewCount",
       },
       {
         title: "点赞数",
-        key: "voteCount",
+        dataIndex: "voteCount",
       },
       {
         title: "Action",
@@ -97,12 +104,12 @@ export default defineComponent({
       });
     };
     const handleTableChange = (pagination: any) => {
-      console.log("看看自带的分页都有啥:"+pagination)
+      console.log("看看自带的分页都有啥:" + pagination);
       handleQuery({
         page: pagination.current,
-        size: pagination.pageSize
-      })
-    }
+        size: pagination.pageSize,
+      });
+    };
     onMounted(() => {
       handleQuery({});
     });
@@ -111,8 +118,8 @@ export default defineComponent({
       pagination,
       columns,
       loading,
-      handleTableChange
-    }
+      handleTableChange,
+    };
   },
 });
 </script>

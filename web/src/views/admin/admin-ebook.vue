@@ -27,7 +27,7 @@
           </template>
           <template v-slot:action="{ text, record }">
             <a-space size="small">
-              <a-button type="primary"> 编辑 </a-button>
+              <a-button type="primary" @click="edit"> 编辑 </a-button>
               <a-button type="danger"> 删除 </a-button>
             </a-space>
           </template>
@@ -35,6 +35,14 @@
       </a-layout-content>
     </a-layout>
   </a-layout>
+  <a-modal
+    title="Title"
+    :visible="modelVisible"
+    :confirm-loading="modelLoading"
+    @ok="handleModelOk"
+  >
+    <p>test</p>
+  </a-modal>
 </template>
 
 <script lang="ts">
@@ -90,9 +98,7 @@ export default defineComponent({
       },
     ];
 
-    /**
-     * 数据查询
-     **/
+    // 数据查询
     const handleQuery = (params: any) => {
       loading.value = true;
       axios
@@ -115,6 +121,20 @@ export default defineComponent({
         size: pagination.pageSize,
       });
     };
+    // 表单
+    const modelVisible = ref(false);
+    const modelLoading = ref(false);
+    const handleModelOk = (e: any) => {
+      modelLoading.value = true;
+      setTimeout(() => {
+        modelVisible.value = false;
+        modelLoading.value = false;
+      }, 2000);
+    };
+    const edit = () => {
+      modelVisible.value = true;
+    };
+
     onMounted(() => {
       handleQuery({
         page: 1,
@@ -127,6 +147,11 @@ export default defineComponent({
       columns,
       loading,
       handleTableChange,
+      // 表单
+      modelVisible,
+      modelLoading,
+      handleModelOk,
+      edit,
     };
   },
 });

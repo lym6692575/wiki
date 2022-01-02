@@ -10,3 +10,12 @@ Accept: application/json
 
 GET http://localhost:8800/ebook
 Accept: application/json
+
+### 测试保存和编辑
+
+POST http://localhost:8800/ebook/save
+Content-Type: application/json
+
+{}
+
+###

@@ -137,17 +137,30 @@ export default defineComponent({
         size: pagination.pageSize,
       });
     };
+
     // 表单
     const ebook = ref({});
     const modelVisible = ref(false);
     const modelLoading = ref(false);
-    const handleModelOk = (e: any) => {
+
+    const handleModelOk = () => {
       modelLoading.value = true;
-      setTimeout(() => {
-        modelVisible.value = false;
-        modelLoading.value = false;
-      }, 2000);
+      axios.post("/ebook/save", ebook.value).then((response) => {
+        const data = response.data;
+        // data = CommonResp
+        if (data.success) {
+          modelVisible.value = false;
+          modelLoading.value = false;
+
+          // 重新加载列表
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+        }
+      });
     };
+
     const edit = (record: any) => {
       modelVisible.value = true;
       ebook.value = record;
@@ -165,11 +178,13 @@ export default defineComponent({
       columns,
       loading,
       handleTableChange,
+
+      edit,
+
       // 表单
       modelVisible,
       modelLoading,
       handleModelOk,
-      edit,
       ebook,
     };
   },

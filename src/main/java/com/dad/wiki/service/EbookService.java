@@ -80,4 +80,12 @@ public class EbookService {
             ebookMapper.updateByPrimaryKey(ebook);
         }
     }
+
+    /**
+     * 保存
+     * @param id
+     */
+    public void delete(Long id) {
+        ebookMapper.deleteByPrimaryKey(id);
+    }
 }

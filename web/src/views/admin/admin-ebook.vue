@@ -11,20 +11,14 @@
       >
         <a-form layout="inline" :model="params">
           <a-form-item>
-            <a-input v-model:value="params.name" placeholder="名称">
-            </a-input>
+            <a-input v-model:value="params.name" placeholder="名称"> </a-input>
           </a-form-item>
           <a-form-item>
             <a-space size="small">
-              <a-button
-                type="primary"
-                @click="handleQuery(params)"
-              >
+              <a-button type="primary" @click="handleQuery(params)">
                 搜索
               </a-button>
-              <a-button type="primary" @click="add()">
-                新增
-              </a-button>
+              <a-button type="primary" @click="add()"> 新增 </a-button>
             </a-space>
           </a-form-item>
         </a-form>
@@ -91,6 +85,7 @@
 import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
+import { Tool } from "@/util/tool";
 
 export default defineComponent({
   name: "AdminEbook",
@@ -208,7 +203,7 @@ export default defineComponent({
      */
     const edit = (record: any) => {
       modelVisible.value = true;
-      ebook.value = record;
+      ebook.value = Tool.copy(record);
     };
 
     /**

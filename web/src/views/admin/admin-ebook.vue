@@ -9,9 +9,25 @@
           minHeight: '280px',
         }"
       >
-        <p>
-          <a-button type="primary" @click="add()" size="large"> 新增 </a-button>
-        </p>
+        <a-form layout="inline" :model="params">
+          <a-form-item>
+            <a-input v-model:value="params.name" placeholder="名称">
+            </a-input>
+          </a-form-item>
+          <a-form-item>
+            <a-space size="small">
+              <a-button
+                type="primary"
+                @click="handleQuery(params)"
+              >
+                搜索
+              </a-button>
+              <a-button type="primary" @click="add()">
+                新增
+              </a-button>
+            </a-space>
+          </a-form-item>
+        </a-form>
         <a-table
           :columns="columns"
           :row-key="(record) => record.id"
@@ -124,13 +140,23 @@ export default defineComponent({
         slots: { customRender: "action" },
       },
     ];
+    // 查询参数
+    const params = ref({
+      page: pagination.value.current,
+      size: pagination.value.pageSize,
+      name: "",
+    });
 
     // 数据查询
     const handleQuery = (params: any) => {
       loading.value = true;
       axios
         .get("/ebook/list", {
-          params: { page: params.page, size: params.size },
+          params: {
+            page: params.page,
+            size: params.size,
+            name: params.name,
+          },
         })
         .then((response) => {
           loading.value = false;
@@ -171,9 +197,9 @@ export default defineComponent({
             page: pagination.value.current,
             size: pagination.value.pageSize,
           });
-        }else{
-          message.error(data.message)
-          modelLoading.value = false
+        } else {
+          message.error(data.message);
+          modelLoading.value = false;
         }
       });
     };
@@ -234,6 +260,10 @@ export default defineComponent({
       modelLoading,
       handleModelOk,
       ebook,
+
+      // 查询
+      params,
+      handleQuery,
     };
   },
 });

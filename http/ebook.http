@@ -8,6 +8,11 @@ Accept: application/json
 
 ###
 
+GET http://localhost:8800/ebook/list?page=1&size=1001
+#Accept: application/json
+#
+####
+
 GET http://localhost:8800/ebook
 Accept: application/json
 

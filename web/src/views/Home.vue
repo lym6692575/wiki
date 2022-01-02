@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, reactive, toRef } from "vue";
+import { defineComponent, onMounted, ref, reactive } from "vue";
 import {
   StarOutlined,
   LikeOutlined,
@@ -122,7 +122,6 @@ export default defineComponent({
   setup() {
     console.log("setup");
     const ebooks = ref();
-    const ebooks1 = reactive({ books: [] });
     onMounted(() => {
       axios
         .get("/ebook/list", { params: { page: 1, size: 1000 } })
@@ -145,8 +144,6 @@ export default defineComponent({
     ];
     return {
       ebooks,
-      ebooks2: toRef(ebooks1, "books"),
-      // listData,
       pagination,
       actions,
     };

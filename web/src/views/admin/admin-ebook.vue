@@ -27,7 +27,7 @@
           </template>
           <template v-slot:action="{ text, record }">
             <a-space size="small">
-              <a-button type="primary" @click="edit"> 编辑 </a-button>
+              <a-button type="primary" @click="edit(record)"> 编辑 </a-button>
               <a-button type="danger"> 删除 </a-button>
             </a-space>
           </template>
@@ -36,12 +36,28 @@
     </a-layout>
   </a-layout>
   <a-modal
-    title="Title"
+    title="电子书表单"
     :visible="modelVisible"
     :confirm-loading="modelLoading"
     @ok="handleModelOk"
   >
-    <p>test</p>
+    <a-form :model="ebook" :label-col="{ span: 6 }">
+      <a-form-item label="封面">
+        <a-input v-model:value="ebook.cover" />
+      </a-form-item>
+      <a-form-item label="名称">
+        <a-input v-model:value="ebook.name" />
+      </a-form-item>
+      <a-form-item label="分类一">
+        <a-input v-model:value="ebook.category1Id" />
+      </a-form-item>
+      <a-form-item label="分类二">
+        <a-input v-model:value="ebook.category2Id" />
+      </a-form-item>
+      <a-form-item label="描述">
+        <a-input v-model:value="ebook.desc" type="text" />
+      </a-form-item>
+    </a-form>
   </a-modal>
 </template>
 
@@ -80,7 +96,7 @@ export default defineComponent({
         dataIndex: "category2Id",
       },
       {
-        title: "文档书",
+        title: "文档数",
         dataIndex: "docCount",
       },
       {
@@ -122,6 +138,7 @@ export default defineComponent({
       });
     };
     // 表单
+    const ebook = ref({});
     const modelVisible = ref(false);
     const modelLoading = ref(false);
     const handleModelOk = (e: any) => {
@@ -131,8 +148,9 @@ export default defineComponent({
         modelLoading.value = false;
       }, 2000);
     };
-    const edit = () => {
+    const edit = (record: any) => {
       modelVisible.value = true;
+      ebook.value = record;
     };
 
     onMounted(() => {
@@ -152,6 +170,7 @@ export default defineComponent({
       modelLoading,
       handleModelOk,
       edit,
+      ebook,
     };
   },
 });

@@ -31,9 +31,16 @@
           <template v-slot:action="{ text, record }">
             <a-space size="small">
               <a-button type="primary" @click="edit(record)"> 编辑 </a-button>
-              <a-button type="danger" @click="handleDelete(record.id)">
-                删除
-              </a-button>
+              <a-popconfirm
+                title="删除后无法恢复，是否删除?"
+                ok-text="是"
+                cancel-text="否"
+                @confirm="handleDelete(record.id)"
+              >
+                <a-button type="danger">
+                  删除
+                </a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </a-table>
@@ -60,7 +67,7 @@
         <a-input v-model:value="ebook.category2Id" />
       </a-form-item>
       <a-form-item label="描述">
-        <a-input v-model:value="ebook.desc" type="text" />
+        <a-input v-model:value="ebook.description" type="text" />
       </a-form-item>
     </a-form>
   </a-modal>

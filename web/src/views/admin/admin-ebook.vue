@@ -140,8 +140,8 @@ export default defineComponent({
             // 重置分页按钮
             pagination.value.current = params.page;
             pagination.value.total = data.content.total;
-          }else{
-            message.error(data.message)
+          } else {
+            message.error(data.message);
           }
         });
     };
@@ -162,16 +162,18 @@ export default defineComponent({
       modelLoading.value = true;
       axios.post("/ebook/save", ebook.value).then((response) => {
         const data = response.data;
+        modelVisible.value = false;
         // data = CommonResp
         if (data.success) {
-          modelVisible.value = false;
           modelLoading.value = false;
-
           // 重新加载列表
           handleQuery({
             page: pagination.value.current,
             size: pagination.value.pageSize,
           });
+        }else{
+          message.error(data.message)
+          modelLoading.value = false
         }
       });
     };

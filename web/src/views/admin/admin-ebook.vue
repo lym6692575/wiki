@@ -9,6 +9,9 @@
           minHeight: '280px',
         }"
       >
+        <p>
+          <a-button type="primary" @click="add()" size="large"> 新增 </a-button>
+        </p>
         <a-table
           :columns="columns"
           :row-key="(record) => record.id"
@@ -37,7 +40,7 @@
   </a-layout>
   <a-modal
     title="电子书表单"
-    :visible="modelVisible"
+    v-model:visible="modelVisible"
     :confirm-loading="modelLoading"
     @ok="handleModelOk"
   >
@@ -160,10 +163,20 @@ export default defineComponent({
         }
       });
     };
-
+    /**
+     * 编辑
+     */
     const edit = (record: any) => {
       modelVisible.value = true;
       ebook.value = record;
+    };
+
+    /**
+     * 新增
+     */
+    const add = () => {
+      modelVisible.value = true;
+      ebook.value = {};
     };
 
     onMounted(() => {
@@ -173,15 +186,18 @@ export default defineComponent({
       });
     });
     return {
+      // 表格类
       ebooks,
       pagination,
       columns,
       loading,
       handleTableChange,
 
+      // 功能
       edit,
+      add,
 
-      // 表单
+      // 表单类
       modelVisible,
       modelLoading,
       handleModelOk,

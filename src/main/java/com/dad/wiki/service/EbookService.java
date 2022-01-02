@@ -9,6 +9,7 @@ import com.dad.wiki.req.EbookSaveReq;
 import com.dad.wiki.resp.EbookQueryResp;
 import com.dad.wiki.resp.PageResp;
 import com.dad.wiki.utils.CopyUtil;
+import com.dad.wiki.utils.SnowFlake;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -26,6 +27,9 @@ public class EbookService {
 
     @Resource
     private EbookMapper ebookMapper;
+
+    @Resource
+    private SnowFlake snowFlake;
 
     public PageResp<EbookQueryResp> list(EbookQueryReq req) {
 
@@ -62,14 +66,14 @@ public class EbookService {
 
     /**
      * 保存
-     *
-     * @param EbookSaveReq
+     * @param req
      */
     public void save(EbookSaveReq req) {
         Ebook ebook = CopyUtil.copy(req, Ebook.class);
         // 判断id是否为空来判断是新增还是编辑
         if (ObjectUtils.isEmpty(req.getId())) {
             //新增
+            ebook.setId(snowFlake.nextId());
             ebookMapper.insert(ebook);
         } else {
             //编辑

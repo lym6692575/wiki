@@ -15,7 +15,7 @@
           </a-form-item>
           <a-form-item>
             <a-space size="small">
-              <a-button type="primary" @click="handleQuery(params)">
+              <a-button type="primary" @click="handleQuery()">
                 搜索
               </a-button>
               <a-button type="primary" @click="add()"> 新增 </a-button>
@@ -27,8 +27,7 @@
           :row-key="(record) => record.id"
           :data-source="categorys"
           :loading="loading"
-          :pagination="pagination"
-          @change="handleTableChange"
+          :pagination="false"
         >
           <template #cover="{ text: cover }">
             <img
@@ -85,11 +84,6 @@ export default defineComponent({
   name: "AdminCategory",
   setup() {
     const categorys = ref();
-    const pagination = ref({
-      current: 1,
-      pageSize: 4,
-      total: 0,
-    });
     const loading = ref(false);
     const columns = [
       {
@@ -114,40 +108,21 @@ export default defineComponent({
     ];
     // 查询参数
     const params = ref({
-      page: pagination.value.current,
-      size: pagination.value.pageSize,
       name: "",
     });
 
     // 数据查询
-    const handleQuery = (params: any) => {
+    const handleQuery = () => {
       loading.value = true;
-      axios
-        .get("/category/list", {
-          params: {
-            page: params.page,
-            size: params.size,
-            name: params.name,
-          },
-        })
-        .then((response) => {
-          loading.value = false;
-          const data = response.data;
-          if (data.success) {
-            categorys.value = data.content.list;
-            // 重置分页按钮
-            pagination.value.current = params.page;
-            pagination.value.total = data.content.total;
-          } else {
-            message.error(data.message);
-          }
-        });
-    };
-    const handleTableChange = (pagination: any) => {
-      console.log("看看自带的分页都有啥:" + pagination);
-      handleQuery({
-        page: pagination.current,
-        size: pagination.pageSize,
+      axios.get("/category/all").then((response) => {
+        loading.value = false;
+        const data = response.data;
+        if (data.success) {
+          categorys.value = data.content;
+          // 重置分页按钮
+        } else {
+          message.error(data.message);
+        }
       });
     };
 
@@ -165,10 +140,7 @@ export default defineComponent({
         if (data.success) {
           modelLoading.value = false;
           // 重新加载列表
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
+          handleQuery();
         } else {
           message.error(data.message);
           modelLoading.value = false;
@@ -200,27 +172,19 @@ export default defineComponent({
         // data = CommonResp
         if (data.success) {
           // 重新加载列表
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
+          handleQuery();
         }
       });
     };
 
     onMounted(() => {
-      handleQuery({
-        page: 1,
-        size: pagination.value.pageSize,
-      });
+      handleQuery();
     });
     return {
       // 表格类
       categorys,
-      pagination,
       columns,
       loading,
-      handleTableChange,
 
       // 功能
       edit,

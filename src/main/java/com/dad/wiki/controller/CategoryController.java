@@ -2,14 +2,15 @@ package com.dad.wiki.controller;
 
 import com.dad.wiki.req.CategoryQueryReq;
 import com.dad.wiki.req.CategorySaveReq;
-import com.dad.wiki.resp.CommonResp;
 import com.dad.wiki.resp.CategoryQueryResp;
+import com.dad.wiki.resp.CommonResp;
 import com.dad.wiki.resp.PageResp;
 import com.dad.wiki.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")
@@ -21,6 +22,14 @@ public class CategoryController {
     @GetMapping("/category")
     public String hello() {
         return "Hello category!";
+    }
+
+    @GetMapping("/all")
+    public CommonResp all() {
+        CommonResp<List<CategoryQueryResp>> resp = new CommonResp<>();
+        List<CategoryQueryResp> list = categoryService.all();
+        resp.setContent(list);
+        return resp;
     }
 
     @GetMapping("/list")

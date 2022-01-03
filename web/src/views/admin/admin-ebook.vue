@@ -38,6 +38,13 @@
               v-if="cover"
             />
           </template>
+          <template #category="{ text, record }">
+            <span>
+              {{ getCategoryName(record.category1Id) }}
+              /
+              {{ getCategoryName(record.category2Id) }}
+            </span>
+          </template>
           <template v-slot:action="{ text, record }">
             <a-space size="small">
               <a-button type="primary" @click="edit(record)"> 编辑 </a-button>
@@ -98,7 +105,7 @@ export default defineComponent({
       total: 0,
     });
     const loading = ref(false);
-    
+
     const columns = [
       {
         title: "封面",
@@ -110,14 +117,8 @@ export default defineComponent({
         dataIndex: "name",
       },
       {
-        title: "分类一",
-        dataIndex: "category1Id",
-        key: "category1Id",
-      },
-      {
-        title: "分类二",
-        key: "category2Id",
-        dataIndex: "category2Id",
+        title: "分类",
+        slots: { customRender: "category" },
       },
       {
         title: "文档数",
@@ -244,14 +245,16 @@ export default defineComponent({
      */
 
     const level1 = ref();
-    // 数据查询
+
+    let categorys: any;
+
     const handleQueryCategory = () => {
       loading.value = true;
       axios.get("/category/all").then((response) => {
         loading.value = false;
         const data = response.data;
         if (data.success) {
-          const categorys = data.content;
+          categorys = data.content;
           console.log("原始数据:", categorys);
           level1.value = [];
           level1.value = Tool.array2Tree(categorys, 0);
@@ -261,6 +264,16 @@ export default defineComponent({
           message.error(data.message);
         }
       });
+    };
+
+    const getCategoryName = (cid: number) => {
+      let result = "";
+      categorys.forEach((item: any) => {
+        if (item.id === cid) {
+          result = item.name;
+        }
+      });
+      return result;
     };
 
     onMounted(() => {
@@ -296,7 +309,7 @@ export default defineComponent({
       categoryIds,
       level1,
       handleQueryCategory,
-
+      getCategoryName,
     };
   },
 });

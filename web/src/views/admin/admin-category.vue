@@ -11,13 +11,11 @@
       >
         <a-form layout="inline" :model="params">
           <a-form-item>
-            <a-input v-model:value="params.name" placeholder="名称"> </a-input>
+            <a-input placeholder="名称"> </a-input>
           </a-form-item>
           <a-form-item>
             <a-space size="small">
-              <a-button type="primary" @click="handleQuery()">
-                搜索
-              </a-button>
+              <a-button type="primary" @click="handleQuery()"> 搜索 </a-button>
               <a-button type="primary" @click="add()"> 新增 </a-button>
             </a-space>
           </a-form-item>
@@ -25,7 +23,7 @@
         <a-table
           :columns="columns"
           :row-key="(record) => record.id"
-          :data-source="categorys"
+          :data-source="level1"
           :loading="loading"
           :pagination="false"
         >
@@ -106,11 +104,20 @@ export default defineComponent({
         slots: { customRender: "action" },
       },
     ];
-    // 查询参数
-    const params = ref({
-      name: "",
-    });
+    /**
+     * 一级分类树，children属性就是二级分类
+     * [{
+     *  id: "",
+     *  name: "",
+     *  children: [{
+     *    id: "",
+     *    name: "",
+     *  }]
+     * }]
+     */
 
+    // 一级分类树,children属性就是二级分类
+    const level1 = ref();
     // 数据查询
     const handleQuery = () => {
       loading.value = true;
@@ -119,6 +126,10 @@ export default defineComponent({
         const data = response.data;
         if (data.success) {
           categorys.value = data.content;
+          console.log("原始数据:",category.value);
+          level1.value = [];
+          level1.value = Tool.array2Tree(categorys.value,0);
+          console.log("树形结构:",level1);
           // 重置分页按钮
         } else {
           message.error(data.message);
@@ -185,6 +196,7 @@ export default defineComponent({
       categorys,
       columns,
       loading,
+      level1,
 
       // 功能
       edit,
@@ -198,7 +210,6 @@ export default defineComponent({
       category,
 
       // 查询
-      params,
       handleQuery,
     };
   },

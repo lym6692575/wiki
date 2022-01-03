@@ -213,6 +213,7 @@ export default defineComponent({
     const edit = (record: any) => {
       modelVisible.value = true;
       ebook.value = Tool.copy(record);
+      categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
     };
 
     /**

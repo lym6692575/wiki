@@ -8,50 +8,28 @@
           v-model:openKeys="openKeys"
           :style="{ height: '100%', borderRight: 0 }"
         >
-          <a-sub-menu key="sub1">
+          <a-menu-item key="welcome">
+            <router-link :to="'/'">
+              <span>欢迎</span>
+            </router-link>
+          </a-menu-item>
+          <a-sub-menu v-for="item in level1" :key="item.id">
             <template #title>
               <span>
                 <user-outlined />
-                subnav 1
+                {{ item.name }}
               </span>
             </template>
-            <a-menu-item key="1">option1</a-menu-item>
-            <a-menu-item key="2">option2</a-menu-item>
-            <a-menu-item key="3">option3</a-menu-item>
-            <a-menu-item key="4">option4</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub2">
-            <template #title>
+            <a-menu-item v-for="child in item.children" :key="child.id">
               <span>
-                <laptop-outlined />
-                subnav 2
+                <user-outlined />
+                {{ child.name }}
               </span>
-            </template>
-            <a-menu-item key="5">option5</a-menu-item>
-            <a-menu-item key="6">option6</a-menu-item>
-            <a-menu-item key="7">option7</a-menu-item>
-            <a-menu-item key="8">option8</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="sub3">
-            <template #title>
-              <span>
-                <notification-outlined />
-                subnav 3
-              </span>
-            </template>
-            <a-menu-item key="9">option9</a-menu-item>
-            <a-menu-item key="10">option10</a-menu-item>
-            <a-menu-item key="11">option11</a-menu-item>
-            <a-menu-item key="12">option12</a-menu-item>
+            </a-menu-item>
           </a-sub-menu>
         </a-menu>
       </a-layout-sider>
-      <a-layout style="padding: 0 24px 24px">
-        <a-breadcrumb style="margin: 16px 0">
-          <a-breadcrumb-item>Home</a-breadcrumb-item>
-          <a-breadcrumb-item>List</a-breadcrumb-item>
-          <a-breadcrumb-item>App</a-breadcrumb-item>
-        </a-breadcrumb>
+      <a-layout>
         <a-layout-content
           :style="{
             background: '#fff',
@@ -90,27 +68,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, reactive } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import {
   StarOutlined,
   LikeOutlined,
   MessageOutlined,
 } from "@ant-design/icons-vue";
 import axios from "axios";
-
-// const listData: Record<string, string>[] = [];
-
-// for (let i = 0; i < 23; i++) {
-//   listData.push({
-//     href: "https://www.antdv.com/",
-//     title: `ant design vue part ${i}`,
-//     avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-//     description:
-//       "Ant Design, a design language for background applications, is refined by Ant UED Team.",
-//     content:
-//       "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-//   });
-// }
+import { message } from "ant-design-vue";
+import { Tool } from "@/util/tool.ts";
 
 export default defineComponent({
   name: "Home",
@@ -120,7 +86,6 @@ export default defineComponent({
     MessageOutlined,
   },
   setup() {
-    console.log("setup");
     const ebooks = ref();
     onMounted(() => {
       axios
@@ -142,10 +107,45 @@ export default defineComponent({
       { type: "LikeOutlined", text: "156" },
       { type: "MessageOutlined", text: "2" },
     ];
+
+    /**
+     * 一级分类树，children属性就是二级分类
+     * [{
+     *  id: "",
+     *  name: "",
+     *  children: [{
+     *    id: "",
+     *    name: "",
+     *  }]
+     * }]
+     */
+
+    // 一级分类树,children属性就是二级分类
+    const level1 = ref();
+    // 数据查询
+    const handleQuery = () => {
+      axios.get("/category/all").then((response) => {
+        const data = response.data;
+        if (data.success) {
+          const categorys = data.content;
+          console.log("原始数据:", categorys);
+          level1.value = [];
+          level1.value = Tool.array2Tree(categorys, 0);
+          console.log("树形结构:", level1);
+          // 重置分页按钮
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+    onMounted(() => {
+      handleQuery();
+    });
     return {
       ebooks,
       pagination,
       actions,
+      level1,
     };
   },
 });

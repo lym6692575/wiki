@@ -88,15 +88,6 @@ export default defineComponent({
   },
   setup() {
     const ebooks = ref();
-    onMounted(() => {
-      axios
-        .get("/ebook/list", { params: { page: 1, size: 1000 } })
-        .then((response) => {
-          const data = response.data;
-          ebooks.value = data.content.list;
-          // ebooks1.books = data.content;
-        });
-    });
     const pagination = {
       onChange: (page: number) => {
         console.log(page);
@@ -124,7 +115,7 @@ export default defineComponent({
     // 一级分类树,children属性就是二级分类
     const level1 = ref();
     // 数据查询
-    const handleQuery = () => {
+    const handleQueryCategory = () => {
       axios.get("/category/all").then((response) => {
         const data = response.data;
         if (data.success) {
@@ -139,16 +130,39 @@ export default defineComponent({
         }
       });
     };
+    
+    const handleQueryEbook = () => {
+      axios
+        .get("/ebook/list", {
+          params: {
+            page: 1,
+            size: 1000,
+            categoryId2Param: categoryId2Param,
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          ebooks.value = data.content.list;
+          // ebooks1.books = data.content;
+        });
+    };
 
     const isShowWelcome = ref(true);
+    let categoryId2Param = 0;
     const handleClick = (value: any) => {
       console.log(1);
       // console.log("menu click", value);
-      isShowWelcome.value = value.key ==="welcome"
+      if (value.key === "welcome") {
+        isShowWelcome.value = true;
+      } else {
+        categoryId2Param = value.key;
+        isShowWelcome.value = false;
+        handleQueryEbook();
+      }
     };
 
     onMounted(() => {
-      handleQuery();
+      handleQueryCategory();
     });
     return {
       ebooks,

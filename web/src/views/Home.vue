@@ -4,14 +4,11 @@
       <a-layout-sider width="200" style="background: #fff">
         <a-menu
           mode="inline"
-          v-model:selectedKeys="selectedKeys2"
-          v-model:openKeys="openKeys"
           :style="{ height: '100%', borderRight: 0 }"
+          @click="handleClick"
         >
           <a-menu-item key="welcome">
-            <router-link :to="'/'">
-              <span>欢迎</span>
-            </router-link>
+            <span>欢迎</span>
           </a-menu-item>
           <a-sub-menu v-for="item in level1" :key="item.id">
             <template #title>
@@ -38,7 +35,11 @@
             minHeight: '280px',
           }"
         >
+          <div class="welcome" v-show="isShowWelcome">
+            <h1>欢迎</h1>
+          </div>
           <a-list
+            v-show="!isShowWelcome"
             item-layout="vertical"
             size="large"
             :data-source="ebooks"
@@ -76,7 +77,7 @@ import {
 } from "@ant-design/icons-vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
-import { Tool } from "@/util/tool.ts";
+import { Tool } from "@/util/tool";
 
 export default defineComponent({
   name: "Home",
@@ -138,6 +139,14 @@ export default defineComponent({
         }
       });
     };
+
+    const isShowWelcome = ref(true);
+    const handleClick = (value: any) => {
+      console.log(1);
+      // console.log("menu click", value);
+      isShowWelcome.value = value.key ==="welcome"
+    };
+
     onMounted(() => {
       handleQuery();
     });
@@ -146,6 +155,8 @@ export default defineComponent({
       pagination,
       actions,
       level1,
+      isShowWelcome,
+      handleClick,
     };
   },
 });

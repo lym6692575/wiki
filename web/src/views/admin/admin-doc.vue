@@ -53,7 +53,7 @@
     </a-layout>
   </a-layout>
   <a-modal
-    title="分类表单"
+    title="文档表单"
     v-model:visible="modelVisible"
     :confirm-loading="modelLoading"
     @ok="handleModelOk"
@@ -62,8 +62,24 @@
       <a-form-item label="名称">
         <a-input v-model:value="doc.name" />
       </a-form-item>
-      <a-form-item label="父分类">
-        <!-- <a-input v-model:value="category.parent" /> -->
+      <a-form-item label="父文档">
+        <a-tree-select
+          v-model:value="doc.parent"
+          style="width: 100%"
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          :tree-data="level1"
+          placeholder="请选择父文档"
+          tree-default-expand-all
+          :replaceFields="{
+            title: 'name',
+            key: 'id',
+            value: 'id',
+          }"
+        >
+        </a-tree-select>
+      </a-form-item>
+      <a-form-item label="父文档">
+        <!-- <a-input v-model:value="doc.parent" /> -->
         <a-select ref="select" v-model:value="doc.parent">
           <a-select-option value="0">无</a-select-option>
           <a-select-option
@@ -90,17 +106,16 @@ import { message } from "ant-design-vue";
 import { Tool } from "@/util/tool";
 
 export default defineComponent({
-  name: "AdminCategory",
+  name: "AdminDoc",
   setup() {
-    const categorys = ref();
-    const loading = ref(false);
+    const docs = ref();
     const columns = [
       {
         title: "名称",
         dataIndex: "name",
       },
       {
-        title: "父分类",
+        title: "父文档",
         dataIndex: "parent",
         key: "parent",
       },
@@ -116,7 +131,7 @@ export default defineComponent({
       },
     ];
     /**
-     * 一级分类树，children属性就是二级分类
+     * 一级文档树，children属性就是二级文档
      * [{
      *  id: "",
      *  name: "",
@@ -127,19 +142,17 @@ export default defineComponent({
      * }]
      */
 
-    // 一级分类树,children属性就是二级分类
+    // 一级文档树,children属性就是二级文档
     const level1 = ref();
     // 数据查询
     const handleQuery = () => {
-      loading.value = true;
-      axios.get("/category/all").then((response) => {
-        loading.value = false;
+      axios.get("/doc/all").then((response) => {
         const data = response.data;
         if (data.success) {
-          categorys.value = data.content;
-          console.log("原始数据:", category.value);
+          docs.value = data.content;
+          console.log("原始数据:", doc.value);
           level1.value = [];
-          level1.value = Tool.array2Tree(categorys.value, 0);
+          level1.value = Tool.array2Tree(docs.value, 0);
           console.log("树形结构:", level1);
           // 重置分页按钮
         } else {
@@ -149,13 +162,13 @@ export default defineComponent({
     };
 
     // 表单
-    const category = ref({});
+    const doc = ref({});
     const modelVisible = ref(false);
     const modelLoading = ref(false);
 
     const handleModelOk = () => {
       modelLoading.value = true;
-      axios.post("/category/save", category.value).then((response) => {
+      axios.post("/doc/save", doc.value).then((response) => {
         const data = response.data;
         modelVisible.value = false;
         // data = CommonResp
@@ -169,12 +182,46 @@ export default defineComponent({
         }
       });
     };
+    //拷贝level1 用来在前端修改增加一个"无"
+    const treeSelectData = ref();
+    treeSelectData.value = [];
+
+    /**
+     * 将某节点及子孙节点全部设置为disable
+     */
+    const setDisable = (treeSelectData: any, id: any) => {
+      // 遍历数组,即遍历某一层节点
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          //如果当前节点就是目标节点
+          console.log("disable", node);
+          //将目标节点设置为disable
+          node.disabled = true;
+
+          //遍历所有子节点,将所有子节点全部加上disable
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              setDisable(children, children[j].id);
+            }
+          }
+        }
+      }
+    };
     /**
      * 编辑
      */
     const edit = (record: any) => {
       modelVisible.value = true;
-      category.value = Tool.copy(record);
+      doc.value = Tool.copy(record);
+
+      // 不能选择当前节点及其所以有子孙节点,作为父节点,会使树断开
+      treeSelectData.value = Tool.copy(level1.value);
+      setDisable(treeSelectData.value, record.id);
+
+      // 为选择树添加一个"无"
+      treeSelectData.value.unshift({ id: 0, name: "无" });
     };
 
     /**
@@ -182,14 +229,18 @@ export default defineComponent({
      */
     const add = () => {
       modelVisible.value = true;
-      category.value = {};
+      doc.value = {};
+
+      treeSelectData.value = Tool.copy(level1.value);
+      // 为选择树添加一个"无"
+      treeSelectData.value.unshift({ id: 0, name: "无" });
     };
 
     /**
      * 删除
      */
     const handleDelete = (id: number) => {
-      axios.delete("/category/delete/" + id).then((response) => {
+      axios.delete("/doc/delete/" + id).then((response) => {
         const data = response.data;
         // data = CommonResp
         if (data.success) {
@@ -204,10 +255,10 @@ export default defineComponent({
     });
     return {
       // 表格类
-      categorys,
+      docs,
       columns,
-      loading,
       level1,
+      treeSelectData,
 
       // 功能
       edit,
@@ -218,7 +269,7 @@ export default defineComponent({
       modelVisible,
       modelLoading,
       handleModelOk,
-      category,
+      doc,
 
       // 查询
       handleQuery,

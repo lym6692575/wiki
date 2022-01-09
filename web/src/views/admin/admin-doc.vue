@@ -78,20 +78,6 @@
         >
         </a-tree-select>
       </a-form-item>
-      <a-form-item label="父文档">
-        <!-- <a-input v-model:value="doc.parent" /> -->
-        <a-select ref="select" v-model:value="doc.parent">
-          <a-select-option value="0">无</a-select-option>
-          <a-select-option
-            v-for="c in level1"
-            :key="c.id"
-            :value="c.id"
-            :disabled="doc.id === c.id"
-          >
-            {{ c.name }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
       <a-form-item label="顺序">
         <a-input v-model:value="doc.sort" />
       </a-form-item>
@@ -104,10 +90,12 @@ import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
 import { Tool } from "@/util/tool";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   name: "AdminDoc",
   setup() {
+    const route = useRoute();
     const docs = ref();
     const columns = [
       {
@@ -229,7 +217,9 @@ export default defineComponent({
      */
     const add = () => {
       modelVisible.value = true;
-      doc.value = {};
+      doc.value = {
+        ebookId: route.query.ebookId
+      };
 
       treeSelectData.value = Tool.copy(level1.value);
       // 为选择树添加一个"无"

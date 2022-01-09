@@ -260,15 +260,12 @@ export default defineComponent({
      * 查找整根树枝获取name
      */
     const getDeleteNames = (treeSelectData: any, id: any) => {
-      console.log("getDeleteNamesID", id);
-      // init
-      deleteNames.length = 0;
+      console.log(treeSelectData, id);
       // 遍历数组,即遍历某一层节点
       for (let i = 0; i < treeSelectData.length; i++) {
         const node = treeSelectData[i];
         if (node.id === id) {
           //如果当前节点就是目标节点
-          console.log("deleteName", node);
           //将目标name放入结果集names
           // node.disabled = true;
           deleteNames.push(node.name);
@@ -277,7 +274,7 @@ export default defineComponent({
           const children = node.children;
           if (Tool.isNotEmpty(children)) {
             for (let j = 0; j < children.length; j++) {
-              getDeleteNames(children, id);
+              getDeleteNames(children, children[j].id);
             }
           }
         } else {
@@ -307,7 +304,8 @@ export default defineComponent({
 
     // 确认删除对话框
     const showDeleteConfirm = (record: any) => {
-      console.log(record.id);
+      // init
+      deleteNames.length = 0;
       getDeleteNames(level1.value, record.id);
       Modal.confirm({
         title: () => "重要提示",

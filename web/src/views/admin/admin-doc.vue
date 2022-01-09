@@ -42,7 +42,7 @@
                 title="删除后无法恢复，是否删除?"
                 ok-text="是"
                 cancel-text="否"
-                @confirm="handleDelete(record.id)"
+                @confirm="showDeleteConfirm(record)"
               >
                 <a-button type="danger"> 删除 </a-button>
               </a-popconfirm>
@@ -86,15 +86,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, createVNode } from "vue";
 import axios from "axios";
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 import { Tool } from "@/util/tool";
 import { useRoute } from "vue-router";
+import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 
 export default defineComponent({
   name: "AdminDoc",
   setup() {
+    // 删除确认对话框
     const route = useRoute();
     const docs = ref();
     const columns = [
@@ -229,7 +231,7 @@ export default defineComponent({
     const ids: Array<string> = [];
 
     /**
-     * 查找整根树枝
+     * 查找整根树枝获取id
      */
     const getDeleteIDs = (treeSelectData: any, id: any) => {
       // 遍历数组,即遍历某一层节点
@@ -237,7 +239,7 @@ export default defineComponent({
         const node = treeSelectData[i];
         if (node.id === id) {
           //如果当前节点就是目标节点
-          console.log("disable", node);
+          console.log("id", id);
           //将目标id放入结果集ids
           // node.disabled = true;
           ids.push(id);
@@ -246,8 +248,43 @@ export default defineComponent({
           const children = node.children;
           if (Tool.isNotEmpty(children)) {
             for (let j = 0; j < children.length; j++) {
-              getDeleteIDs(children, children[j].id);
+              getDeleteIDs(children, id);
             }
+          }
+        }
+      }
+    };
+
+    const deleteNames: Array<string> = [];
+    /**
+     * 查找整根树枝获取name
+     */
+    const getDeleteNames = (treeSelectData: any, id: any) => {
+      console.log("getDeleteNamesID", id);
+      // init
+      deleteNames.length = 0;
+      // 遍历数组,即遍历某一层节点
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          //如果当前节点就是目标节点
+          console.log("deleteName", node);
+          //将目标name放入结果集names
+          // node.disabled = true;
+          deleteNames.push(node.name);
+
+          //遍历所有子节点
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              getDeleteNames(children, id);
+            }
+          }
+        } else {
+          // 如果当前节点不是目标节点，则到其子节点再找找看。
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            getDeleteNames(children, id);
           }
         }
       }
@@ -265,6 +302,27 @@ export default defineComponent({
           // 重新加载列表
           handleQuery();
         }
+      });
+    };
+
+    // 确认删除对话框
+    const showDeleteConfirm = (record: any) => {
+      console.log(record.id);
+      getDeleteNames(level1.value, record.id);
+      Modal.confirm({
+        title: () => "重要提示",
+        icon: () => createVNode(ExclamationCircleOutlined),
+        content: () =>
+          "将删除：【" + deleteNames + "】删除后不可恢复，确认删除？",
+        okText: () => "确认",
+        okType: "danger",
+        cancelText: () => "取消",
+        onOk() {
+          handleDelete(record.id);
+        },
+        // onCancel() {
+        //   console.log("Cancel");
+        // },
       });
     };
 
@@ -291,6 +349,8 @@ export default defineComponent({
 
       // 查询
       handleQuery,
+
+      showDeleteConfirm,
     };
   },
 });

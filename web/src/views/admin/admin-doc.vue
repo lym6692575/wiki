@@ -218,7 +218,7 @@ export default defineComponent({
     const add = () => {
       modelVisible.value = true;
       doc.value = {
-        ebookId: route.query.ebookId
+        ebookId: route.query.ebookId,
       };
 
       treeSelectData.value = Tool.copy(level1.value);
@@ -226,11 +226,39 @@ export default defineComponent({
       treeSelectData.value.unshift({ id: 0, name: "无" });
     };
 
+    const ids: Array<string> = [];
+
+    /**
+     * 查找整根树枝
+     */
+    const getDeleteIDs = (treeSelectData: any, id: any) => {
+      // 遍历数组,即遍历某一层节点
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          //如果当前节点就是目标节点
+          console.log("disable", node);
+          //将目标id放入结果集ids
+          // node.disabled = true;
+          ids.push(id);
+
+          //遍历所有子节点
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              getDeleteIDs(children, children[j].id);
+            }
+          }
+        }
+      }
+    };
+
     /**
      * 删除
      */
     const handleDelete = (id: number) => {
-      axios.delete("/doc/delete/" + id).then((response) => {
+      getDeleteIDs(level1.value, id);
+      axios.delete("/doc/delete/" + ids.join(",")).then((response) => {
         const data = response.data;
         // data = CommonResp
         if (data.success) {

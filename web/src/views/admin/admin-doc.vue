@@ -9,46 +9,83 @@
           minHeight: '280px',
         }"
       >
-        <a-form layout="inline" :model="params">
-          <a-form-item>
-            <a-input placeholder="名称"> </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-space size="small">
-              <a-button type="primary" @click="handleQuery()"> 搜索 </a-button>
-              <a-button type="primary" @click="add()"> 新增 </a-button>
-            </a-space>
-          </a-form-item>
-        </a-form>
-        <a-table
-          :columns="columns"
-          :row-key="(record) => record.id"
-          :data-source="level1"
-          :loading="loading"
-          :pagination="false"
-        >
-          <template #cover="{ text: cover }">
-            <img
-              :src="cover.cover"
-              alt="avater"
-              style="width: 40px"
-              v-if="cover"
-            />
-          </template>
-          <template v-slot:action="{ text, record }">
-            <a-space size="small">
-              <a-button type="primary" @click="edit(record)"> 编辑 </a-button>
-              <a-popconfirm
-                title="删除后无法恢复，是否删除?"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="showDeleteConfirm(record)"
-              >
-                <a-button type="danger"> 删除 </a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </a-table>
+        <a-row>
+          <a-col :span="8">
+            <a-form layout="inline" :model="params">
+              <a-form-item>
+                <a-input placeholder="名称"> </a-input>
+              </a-form-item>
+              <a-form-item>
+                <a-space size="small">
+                  <a-button type="primary" @click="handleQuery()">
+                    搜索
+                  </a-button>
+                  <a-button type="primary" @click="add()"> 新增 </a-button>
+                </a-space>
+              </a-form-item>
+            </a-form>
+            <a-table
+              :columns="columns"
+              :row-key="(record) => record.id"
+              :data-source="level1"
+              :loading="loading"
+              :pagination="false"
+            >
+              <template #cover="{ text: cover }">
+                <img
+                  :src="cover.cover"
+                  alt="avater"
+                  style="width: 40px"
+                  v-if="cover"
+                />
+              </template>
+              <template v-slot:action="{ text, record }">
+                <a-space size="small">
+                  <a-button type="primary" @click="edit(record)">
+                    编辑
+                  </a-button>
+                  <a-popconfirm
+                    title="删除后无法恢复，是否删除?"
+                    ok-text="是"
+                    cancel-text="否"
+                    @confirm="showDeleteConfirm(record)"
+                  >
+                    <a-button type="danger"> 删除 </a-button>
+                  </a-popconfirm>
+                </a-space>
+              </template>
+            </a-table></a-col
+          >
+          <a-col :span="16">
+            <a-form :model="doc" :label-col="{ span: 6 }">
+              <a-form-item label="名称">
+                <a-input v-model:value="doc.name" />
+              </a-form-item>
+              <a-form-item label="父文档">
+                <a-tree-select
+                  v-model:value="doc.parent"
+                  style="width: 100%"
+                  :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                  :tree-data="level1"
+                  placeholder="请选择父文档"
+                  tree-default-expand-all
+                  :replaceFields="{
+                    title: 'name',
+                    key: 'id',
+                    value: 'id',
+                  }"
+                >
+                </a-tree-select>
+              </a-form-item>
+              <a-form-item label="顺序">
+                <a-input v-model:value="doc.sort" />
+              </a-form-item>
+              <a-form-item label="内容">
+                <div id="content"></div>
+              </a-form-item>
+            </a-form>
+          </a-col>
+        </a-row>
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -58,33 +95,6 @@
     :confirm-loading="modelLoading"
     @ok="handleModelOk"
   >
-    <a-form :model="doc" :label-col="{ span: 6 }">
-      <a-form-item label="名称">
-        <a-input v-model:value="doc.name" />
-      </a-form-item>
-      <a-form-item label="父文档">
-        <a-tree-select
-          v-model:value="doc.parent"
-          style="width: 100%"
-          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-          :tree-data="level1"
-          placeholder="请选择父文档"
-          tree-default-expand-all
-          :replaceFields="{
-            title: 'name',
-            key: 'id',
-            value: 'id',
-          }"
-        >
-        </a-tree-select>
-      </a-form-item>
-      <a-form-item label="顺序">
-        <a-input v-model:value="doc.sort" />
-      </a-form-item>
-      <a-form-item label="内容">
-        <div id="content"></div>
-      </a-form-item>
-    </a-form>
   </a-modal>
 </template>
 
@@ -217,8 +227,9 @@ export default defineComponent({
 
       // 为选择树添加一个"无"
       treeSelectData.value.unshift({ id: 0, name: "无" });
-
-      editor.create();
+      setTimeout(() => {
+        editor.create();
+      }, 100);
     };
 
     /**
@@ -243,13 +254,17 @@ export default defineComponent({
     /**
      * 查找整根树枝获取id
      */
+
+    /**
+     * 查找整根树枝
+     */
     const getDeleteIDs = (treeSelectData: any, id: any) => {
       // 遍历数组,即遍历某一层节点
       for (let i = 0; i < treeSelectData.length; i++) {
         const node = treeSelectData[i];
         if (node.id === id) {
           //如果当前节点就是目标节点
-          console.log("id", id);
+          console.log("disable", node);
           //将目标id放入结果集ids
           // node.disabled = true;
           ids.push(id);
@@ -258,7 +273,7 @@ export default defineComponent({
           const children = node.children;
           if (Tool.isNotEmpty(children)) {
             for (let j = 0; j < children.length; j++) {
-              getDeleteIDs(children, id);
+              getDeleteIDs(children, children[j].id);
             }
           }
         }
@@ -301,6 +316,7 @@ export default defineComponent({
      * 删除
      */
     const handleDelete = (id: number) => {
+      ids.length = 0;
       getDeleteIDs(level1.value, id);
       axios.delete("/doc/delete/" + ids.join(",")).then((response) => {
         const data = response.data;
@@ -315,6 +331,7 @@ export default defineComponent({
     // 确认删除对话框
     const showDeleteConfirm = (record: any) => {
       // init
+      console.log("record.id", record.id);
       deleteNames.length = 0;
       getDeleteNames(level1.value, record.id);
       Modal.confirm({
@@ -336,6 +353,7 @@ export default defineComponent({
 
     onMounted(() => {
       handleQuery();
+      editor.create();
     });
     return {
       // 表格类

@@ -1,8 +1,10 @@
 package com.dad.wiki.service;
 
 
+import com.dad.wiki.domain.Content;
 import com.dad.wiki.domain.Doc;
 import com.dad.wiki.domain.DocExample;
+import com.dad.wiki.mapper.ContentMapper;
 import com.dad.wiki.mapper.DocMapper;
 import com.dad.wiki.req.DocQueryReq;
 import com.dad.wiki.req.DocSaveReq;
@@ -27,6 +29,9 @@ public class DocService {
 
     @Resource
     private DocMapper docMapper;
+
+    @Resource
+    private ContentMapper contentMapper;
 
     @Resource
     private SnowFlake snowFlake;
@@ -77,23 +82,33 @@ public class DocService {
 
     /**
      * 保存
+     *
      * @param req
      */
     public void save(DocSaveReq req) {
         Doc doc = CopyUtil.copy(req, Doc.class);
+        Content content = CopyUtil.copy(req, Content.class);
+
         // 判断id是否为空来判断是新增还是编辑
         if (ObjectUtils.isEmpty(req.getId())) {
             //新增
             doc.setId(snowFlake.nextId());
             docMapper.insert(doc);
+            content.setId(doc.getId());
+            contentMapper.insert(content);
         } else {
             //编辑
             docMapper.updateByPrimaryKey(doc);
+            int count = contentMapper.updateByPrimaryKeyWithBLOBs(content);
+            if (count == 0) {
+                contentMapper.insert(content);
+            }
         }
     }
 
     /**
      * 保存
+     *
      * @param id
      */
     public void delete(Long id) {

@@ -58,7 +58,7 @@
             <p>
               <a-form layout="inline" :model="param">
                 <a-form-item>
-                  <a-button type="primary" @click="handleSave"></a-button>
+                  <a-button type="primary" @click="handleSave">保存</a-button>
                 </a-form-item>
               </a-form>
             </p>
@@ -162,7 +162,8 @@ export default defineComponent({
     };
 
     // 表单
-    const doc = ref({});
+    const doc = ref();
+    doc.value = {};
     const modelVisible = ref(false);
     const modelLoading = ref(false);
     const editor = new E("#content");
@@ -170,6 +171,7 @@ export default defineComponent({
 
     const handleSave = () => {
       modelLoading.value = true;
+      doc.value.content = editor.txt.html();
       axios.post("/doc/save", doc.value).then((response) => {
         const data = response.data;
         modelVisible.value = false;
@@ -215,7 +217,6 @@ export default defineComponent({
      * 编辑
      */
     const edit = (record: any) => {
-      modelVisible.value = true;
       doc.value = Tool.copy(record);
 
       // 不能选择当前节点及其所以有子孙节点,作为父节点,会使树断开

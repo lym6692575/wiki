@@ -177,7 +177,8 @@ export default defineComponent({
         modelVisible.value = false;
         // data = CommonResp
         if (data.success) {
-          modelLoading.value = false;
+          // modelLoading.value = false;
+          message.success("保存成功！");
           // 重新加载列表
           handleQuery();
         } else {
@@ -231,6 +232,7 @@ export default defineComponent({
      * 编辑
      */
     const edit = (record: any) => {
+      editor.txt.html("");
       doc.value = Tool.copy(record);
       handleQueryContent();
 
@@ -246,6 +248,7 @@ export default defineComponent({
      * 新增
      */
     const add = () => {
+      editor.txt.html("");
       modelVisible.value = true;
       doc.value = {
         ebookId: route.query.ebookId,

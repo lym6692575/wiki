@@ -7,22 +7,26 @@
       minHeight: '280px',
     }"
   >
-    <a-clo :span="6">
-      <a-tree
-        showLine
-        v-if="level1.length > 0"
-        :tree-data="level1"
-        @select="onSelect"
-        :replaceFields="{
-          title: 'name',
-          key: 'id',
-          value: 'id',
-        }"
-        :defaultExpandAll="true"
-      >
-      </a-tree>
-    </a-clo>
-    <a-clo :span="18"></a-clo>
+    <a-row>
+      <a-col :span="6">
+        <a-tree
+          showLine
+          v-if="level1.length > 0"
+          :tree-data="level1"
+          @select="onSelect"
+          :replaceFields="{
+            title: 'name',
+            key: 'id',
+            value: 'id',
+          }"
+          :defaultExpandAll="true"
+        >
+        </a-tree>
+      </a-col>
+      <a-col :span="18">
+        <div :innerHTML="html"></div>
+      </a-col>
+    </a-row>
   </a-layout-content>
 </template>
 
@@ -38,6 +42,7 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const docs = ref();
+    const html = ref();
 
     /**
      * 一级文档树，children属性就是二级文档
@@ -56,7 +61,7 @@ export default defineComponent({
     level1.value = [];
     // 数据查询
     const handleQuery = () => {
-      axios.get("/doc/all/"+route.query.ebookId).then((response) => {
+      axios.get("/doc/all/" + route.query.ebookId).then((response) => {
         const data = response.data;
         if (data.success) {
           docs.value = data.content;
@@ -69,12 +74,32 @@ export default defineComponent({
         }
       });
     };
+    // 内容查询
+    const handleQueryContent = (id: number) => {
+      axios.get("/doc/find-content/" + id).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          html.value = data.content;
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+
+    const onSelect = (selectedKeys: any, info: any) => {
+      console.log("selected", selectedKeys, info);
+      if (Tool.isNotEmpty(selectedKeys)) {
+        handleQueryContent(selectedKeys[0]);
+      }
+    };
 
     onMounted(() => {
       handleQuery();
     });
     return {
       level1,
+      html,
+      onSelect
     };
   },
 });

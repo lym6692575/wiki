@@ -7,6 +7,7 @@
       minHeight: '280px',
     }"
   >
+    <h3 v-if="level1.length === 0">对不起，找不到相关文档！</h3>
     <a-row>
       <a-col :span="6">
         <a-tree
@@ -105,7 +106,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 /* wangeditor样式  */
 /* table 样式 */
 .wangtditor table {
@@ -148,7 +149,8 @@ export default defineComponent({
 }
 
 /* ul ol 样式 */
-.wangtditor ul, ol {
+.wangtditor ul,
+ol {
   margin: 10px 0 10px 20px;
 }
 
@@ -156,6 +158,6 @@ export default defineComponent({
   font-family: "YouYuan";
   margin: 20px 10px !important;
   font-size: 16px !important;
-  font-weight:600;
+  font-weight: 600;
 }
 </style>

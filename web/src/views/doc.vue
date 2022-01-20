@@ -24,7 +24,7 @@
         </a-tree>
       </a-col>
       <a-col :span="18">
-        <div :innerHTML="html"></div>
+        <div class="wangeditor" :innerHTML="html"></div>
       </a-col>
     </a-row>
   </a-layout-content>
@@ -99,8 +99,63 @@ export default defineComponent({
     return {
       level1,
       html,
-      onSelect
+      onSelect,
     };
   },
 });
 </script>
+
+<style>
+/* wangeditor样式  */
+/* table 样式 */
+.wangtditor table {
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+}
+.wangtditor table td,
+.wangtditor table th {
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  padding: 3px 5px;
+}
+.wangtditor table th {
+  border-bottom: 2px solid #ccc;
+  text-align: center;
+}
+
+/* blockquote 样式 */
+.wangtditor blockquote {
+  display: block;
+  border-left: 8px solid #d0e5f2;
+  padding: 5px 10px;
+  margin: 10px 0;
+  line-height: 1.4;
+  font-size: 100%;
+  background-color: #f1f1f1;
+}
+/* code 样式 */
+.wangtditor code {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  background-color: #f1f1f1;
+  border-radius: 3px;
+  padding: 3px 5px;
+  margin: 0 3px;
+}
+.wangtditor pre code {
+  display: block;
+}
+
+/* ul ol 样式 */
+.wangtditor ul, ol {
+  margin: 10px 0 10px 20px;
+}
+
+.wangeditor blockquote p {
+  font-family: "YouYuan";
+  margin: 20px 10px !important;
+  font-size: 16px !important;
+  font-weight:600;
+}
+</style>

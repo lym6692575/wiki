@@ -86,11 +86,25 @@
                 <a-input v-model:value="doc.sort" placeholder="顺序" />
               </a-form-item>
               <a-form-item>
+                <a-button type="primary" @click="handlePreviewContent()">
+                  <EyeOutlined /> 内容预览
+                </a-button>
+              </a-form-item>
+              <a-form-item>
                 <div id="content"></div>
               </a-form-item>
             </a-form>
           </a-col>
         </a-row>
+        <a-drawer
+          width="900"
+          :placement="right"
+          :closable="false"
+          :visible="drawerVisible"
+          @close="onDrawerClose()"
+        >
+          <div class="wangeditor" :innerHTML="previewHtml"></div>
+        </a-drawer>
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -146,7 +160,7 @@ export default defineComponent({
     const level1 = ref();
     // 数据查询
     const handleQuery = () => {
-      axios.get("/doc/all/"+ route.query.ebookId).then((response) => {
+      axios.get("/doc/all/" + route.query.ebookId).then((response) => {
         const data = response.data;
         if (data.success) {
           docs.value = data.content;
@@ -215,13 +229,12 @@ export default defineComponent({
       }
     };
 
-    
     // 内容查询
     const handleQueryContent = () => {
       axios.get("/doc/find-content/" + doc.value.id).then((response) => {
         const data = response.data;
         if (data.success) {
-          editor.txt.html(data.content)
+          editor.txt.html(data.content);
         } else {
           message.error(data.message);
         }
@@ -360,6 +373,18 @@ export default defineComponent({
       });
     };
 
+    // ——————————————————————富文本预览————————————————————————
+    const drawerVisible = ref<boolean>(false);
+    const previewHtml = ref();
+    const handlePreviewContent = () => {
+      const html = editor.txt.html();
+      previewHtml.value = html; 
+      drawerVisible.value = true;
+    };
+    const onDrawerClose = () => {
+      drawerVisible.value = false;
+    };
+
     onMounted(() => {
       handleQuery();
       editor.create();
@@ -385,6 +410,11 @@ export default defineComponent({
       // 查询
       handleQuery,
       showDeleteConfirm,
+
+      drawerVisible,
+      previewHtml,
+      handlePreviewContent,
+      onDrawerClose,
     };
   },
 });
